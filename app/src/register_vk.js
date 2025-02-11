@@ -1,29 +1,33 @@
 const fs = require("fs");
 const { zkVerifySession } = require("zkverifyjs");
-require('dotenv').config({ path: ['.env', '.env.secrets'] })
+require("dotenv").config({ path: [".env", ".env.secrets"] });
 
 async function run() {
-    // Load verification key from file
-    const vk = JSON.parse(fs.readFileSync("../circuit/setup/verification_key.json"));
+  const proof = require("./proof.json");
+  // Load verification key from file
+  const vk = proof.image_id;
 
-    // Establish a session with zkVerify
-    const session = await zkVerifySession.start()
-        .Custom(process.env.ZKV_RPC_URL)
-        .withAccount(process.env.ZKV_SEED_PHRASE);
+  // Establish a session with zkVerify
+  const session = await zkVerifySession
+    .start()
+    .Custom("wss://testnet-rpc.zkverify.io")
+    .withAccount("afford scale strong common joy concert hidden pudding screen cube pistol member");
 
-    // Send verification key to zkVerify for registration
-    const { transactionResult } = await session.registerVerificationKey()
-        .groth16()
-        .execute(vk);
-    const { statementHash } = await transactionResult;
-    console.log(`vk hash: ${statementHash}`)
+  // Send verification key to zkVerify for registration
+  const { transactionResult } = await session
+    .registerVerificationKey()
+    .risc0()
+    .execute(vk);
+    
+  const { statementHash } = await transactionResult;
+  console.log(`vk hash: ${statementHash}`);
 }
 
 run()
-    .then(() => {
-        process.exit(0);
-    })
-    .catch(err => {
-        console.error(err);
-        process.exit(1);
-    });
+  .then(() => {
+    process.exit(0);
+  })
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
