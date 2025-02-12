@@ -50,6 +50,7 @@ contract ZkMLMarketplace {
         _leafCount,
         _index
     ), "Invalid proof");
+    emit SuccessfulProofSubmission(address (msg.sender));
 }
 
 }

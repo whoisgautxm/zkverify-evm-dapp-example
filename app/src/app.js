@@ -1,22 +1,9 @@
-const snarkjs = require("snarkjs");
 const fs = require("fs");
 const { zkVerifySession, ZkVerifyEvents } = require("zkverifyjs");
 const ethers = require("ethers");
-// const yargs = require("yargs/yargs");
-// const { hideBin } = require("yargs/helpers");
-// const { version } = require("yargs");
-require('dotenv').config();
+require("dotenv").config();
 
 async function run() {
-//   const {
-//     ZKV_RPC_URL,
-//     ZKV_SEED_PHRASE,
-//     ETH_RPC_URL,
-//     ETH_SECRET_KEY,
-//     ETH_ZKVERIFY_CONTRACT_ADDRESS,
-//     ETH_APP_CONTRACT_ADDRESS,
-//   } = process.env;
-
   const evmAccount = ethers.computeAddress(process.env.ETH_SECRET_KEY);
 
   const proof = require("./proof.json");
@@ -67,7 +54,22 @@ async function run() {
     const proofDetails = await session.poe(attestationId, leafDigest);
     proofDetails.attestationId = eventData.id;
     fs.writeFileSync("attestation.json", JSON.stringify(proofDetails, null, 2));
-    console.log("proofDetails", proofDetails);
+    
+    // Move the contract interaction logic HERE
+    const attestationData = JSON.parse(fs.readFileSync("attestation.json"));
+    const filterAttestationsById = zkvContract.filters.AttestationPosted(attestationId, null);
+    
+    zkvContract.once(filterAttestationsById, async (_id, _root) => {
+      const txResponse = await appContract.checkHash(
+        proof.pub_inputs,
+        attestationData.attestationId,
+        attestationData.proof,
+        attestationData.numberOfLeaves,
+        attestationData.leafIndex
+      );
+      const { hash } = await txResponse;
+      console.log(`Tx sent to EVM, tx-hash ${hash}`);
+    });
   });
   // Retrieve via rpc call:
   // - the merkle proof of inclusion of the proof inside the attestation
@@ -114,15 +116,16 @@ async function run() {
     attestationId,
     null
   );
+  const attestationData = JSON.parse(fs.readFileSync("attestation.json"));
   zkvContract.once(filterAttestationsById, async (_id, _root) => {
     // After the attestation has been posted on the EVM, send a `proveYouCanFactor42` tx
     // to the app contract, with all the necessary merkle proof details
     const txResponse = await appContract.checkHash(
       proof.pub_inputs,
-      attestationId,
-      merkleProof,
-      numberOfLeaves,
-      leafIndex
+      attestationData.attestationId,
+      attestationData.proof,
+      attestationData.numberOfLeaves,
+      attestationData.leafIndex
     );
     const { hash } = await txResponse;
     console.log(`Tx sent to EVM, tx-hash ${hash}`);
@@ -130,7 +133,7 @@ async function run() {
 
   const filterAppEventsByCaller =
     appContract.filters.SuccessfulProofSubmission(evmAccount);
-  appContract.once(filterAppEventsByCaller, async () => {
+    appContract.once(filterAppEventsByCaller, async () => {
     console.log("App contract has acknowledged that you can factor 42!");
   });
 }
