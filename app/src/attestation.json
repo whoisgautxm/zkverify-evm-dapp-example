@@ -1,12 +1,10 @@
 {
-  "root": "0x522b6346e78a5c801658b4e9e841935085e107f9bb053e85c4168066bff3bcae",
+  "root": "0xa1df0eb1df2a7637e085be3e27e222ba6a4f491163b627093dbeaa01be6d9975",
   "proof": [
-    "0xf84d907c3d9f92faf4bc642292f7e1a3519006bc8a4f55de09dbe657d37497ab",
-    "0x64a7a20808c0601361d92277a7062a301f416c062e3a3f851b03021867691dba",
-    "0xfb25aecff6f7ee335bb6aaf342d3182e0bce3d317b849b61661c54e745f66817"
+    "0x5094bc6bb5303061a08ce7d8f143f676494bd17f075d199a2bc9001001c92941"
   ],
-  "numberOfLeaves": 6,
-  "leafIndex": 1,
+  "numberOfLeaves": 2,
+  "leafIndex": 0,
   "leaf": "0x5eb467af37fdfd71bafaffc9b2f3866df366d9ec602c65e8b80d2aea44168c34",
-  "attestationId": 43245
+  "attestationId": 44229
 }

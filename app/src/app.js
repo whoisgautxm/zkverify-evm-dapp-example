@@ -2,7 +2,7 @@ const fs = require("fs");
 const { zkVerifySession, ZkVerifyEvents } = require("zkverifyjs");
 const ethers = require("ethers");
 require("dotenv").config();
-
+0
 async function run() {
   const evmAccount = ethers.computeAddress(process.env.ETH_SECRET_KEY);
 
@@ -26,6 +26,7 @@ async function run() {
         version: "V1_2", // Mention the R0 version
       },
     });
+    const attestationData = JSON.parse(fs.readFileSync("attestation.json"));
 
   let attestationId, leafDigest;
   events.on(ZkVerifyEvents.IncludedInBlock, (eventData) => {
@@ -88,7 +89,7 @@ async function run() {
   }
 
   const provider = new ethers.JsonRpcProvider(process.env.ETH_RPC_URL, null, {
-    polling: true,
+    polling:true,
   });
   const wallet = new ethers.Wallet(process.env.ETH_SECRET_KEY, provider);
 
@@ -116,7 +117,6 @@ async function run() {
     attestationId,
     null
   );
-  const attestationData = JSON.parse(fs.readFileSync("attestation.json"));
   zkvContract.once(filterAttestationsById, async (_id, _root) => {
     // After the attestation has been posted on the EVM, send a `proveYouCanFactor42` tx
     // to the app contract, with all the necessary merkle proof details
